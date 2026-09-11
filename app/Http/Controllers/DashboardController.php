@@ -152,7 +152,7 @@ class DashboardController extends Controller
 
     public function uploadDokumentasi(Request $request)
     {
-        $request->validate(['foto' => 'required|image|max:10240']);
+        $request->validate(['foto' => 'required|image|max:102400']);
         if ($request->hasFile('foto')) {
             $file = $request->file('foto');
             $filename = time() . '_' . $file->getClientOriginalName();

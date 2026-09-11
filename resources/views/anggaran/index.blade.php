@@ -7,7 +7,7 @@
 
     <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
         <div class="flex flex-col md:flex-row justify-end items-center mb-4 text-sm text-gray-600 gap-4">
-            <form action="{{ route('anggaran') }}" method="GET" class="flex items-center gap-3 w-full md:w-auto">
+            <form action="{{ route('anggaran') }}" method="GET" id="filterFormAnggaran" class="flex items-center gap-3 w-full md:w-auto">
                 <div class="flex items-center gap-2">
                     <span class="hidden lg:inline text-gray-500 font-semibold">Filter Devisi:</span>
                     <select name="devisi" onchange="this.form.submit()"
@@ -24,8 +24,8 @@
                 <div class="flex items-center gap-2 relative">
                     <span class="hidden lg:inline font-semibold">Cari:</span>
                     <div class="relative flex items-center">
-                        <input type="search" name="search" value="{{ request('search') }}"
-                            oninput="if(this.value === '') this.form.submit();" placeholder="Nama kegiatan..."
+                        <input type="search" name="search" id="searchInputAnggaran" value="{{ request('search') }}"
+                            oninput="handleSearchAnggaran(this)" placeholder="Nama kegiatan..."
                             class="border border-gray-300 rounded-lg px-3 py-1.5 pr-8 focus:outline-none focus:border-primary-blue focus:ring-1 focus:ring-primary-blue text-sm w-40 md:w-56">
                         <button type="submit" class="absolute right-2 text-gray-400 hover:text-primary-blue transition">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -55,7 +55,7 @@
                             <td class="py-4 px-4 text-center text-sm">{{ $loop->iteration }}</td>
                             <td class="py-4 px-4 font-medium text-gray-800 text-sm">{{ $keg->nama_kegiatan }}</td>
                             <td class="py-4 px-4 text-sm">{{ $keg->devisi }}</td>
-                            <td class="py-4 px-4 text-center font-bold text-blue-600 text-sm">
+                            <td id="total_rab_{{ $keg->id }}" class="py-4 px-4 text-center font-bold text-blue-600 text-sm">
                                 Rp. {{ number_format($keg->anggarans->sum('total'), 0, ',', '.') }}
                             </td>
                             <td class="py-4 px-4 text-center">
@@ -269,6 +269,26 @@
 
     <!-- Script Khusus Rancang Anggaran -->
     <script>
+        let typingTimerAnggaran;
+        const doneTypingIntervalAnggaran = 500;
+
+        function handleSearchAnggaran(inputElement) {
+            clearTimeout(typingTimerAnggaran);
+            typingTimerAnggaran = setTimeout(function() {
+                document.getElementById('filterFormAnggaran').submit();
+            }, doneTypingIntervalAnggaran);
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            const searchInput = document.getElementById('searchInputAnggaran');
+            if (searchInput && searchInput.value) {
+                searchInput.focus();
+                const val = searchInput.value;
+                searchInput.value = '';
+                searchInput.value = val;
+            }
+        });
+
         let barangIndex = 0;
 
         // FUNGSI MEMBUKA MODAL DAN MENGISI DATA AWAL DARI DATABASE
@@ -451,6 +471,14 @@
                 .then(response => {
                     // Munculkan popup notifikasi sukses
                     tampilkanToastSuksesAnggaran();
+
+                    // Update total di tabel utama tanpa reload
+                    let kegiatanId = document.getElementById('modal_kegiatan_id').value;
+                    let totalRAB = document.getElementById('totalKeseluruhan').innerText;
+                    let tdTotal = document.getElementById('total_rab_' + kegiatanId);
+                    if(tdTotal) {
+                        tdTotal.innerText = 'Rp. ' + totalRAB;
+                    }
 
                     // Kembalikan tombol ke kondisi semula agar bisa diklik lagi jika ada perubahan
                     btn.innerHTML = originalText;

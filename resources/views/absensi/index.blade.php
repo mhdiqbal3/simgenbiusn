@@ -64,58 +64,114 @@
                     </div>
                 @endif
 
-                <div class="relative w-full md:w-72" id="customDropdownContainer">
+                    @php
+                        $kegiatanBelum = [];
+                        $kegiatanSudah = [];
+                        foreach($kegiatans as $kegiatan) {
+                            if(in_array($kegiatan->nama_kegiatan, $sudahAbsen)) {
+                                $kegiatanSudah[] = $kegiatan;
+                            } else {
+                                $kegiatanBelum[] = $kegiatan;
+                            }
+                        }
+                    @endphp
                     <select name="kegiatan_id" id="master_kegiatan" class="hidden">
-                        <option value="" data-nama="">-- 1. Pilih Kegiatan --</option>
+                        <option value="" data-nama="">-- Pilih Kegiatan --</option>
                         @foreach ($kegiatans as $kegiatan)
-                            @php $isDone = in_array($kegiatan->nama_kegiatan, $sudahAbsen); @endphp
-                            <option value="{{ $kegiatan->id }}" data-nama="{{ $kegiatan->nama_kegiatan }}"
-                                {{ request('kegiatan_id') == $kegiatan->id ? 'selected' : '' }}>
-                                {{ $isDone ? '✅' : '🔴' }} {{ $kegiatan->nama_kegiatan }}
+                            <option value="{{ $kegiatan->id }}" data-nama="{{ $kegiatan->nama_kegiatan }}" {{ request('kegiatan_id') == $kegiatan->id ? 'selected' : '' }}>
+                                {{ $kegiatan->nama_kegiatan }}
                             </option>
                         @endforeach
                     </select>
 
-                    <button type="button" id="dropdownButton"
-                        class="w-full border-2 border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-primary-blue focus:ring-2 focus:ring-primary-blue/20 bg-gray-50 hover:bg-white transition font-bold text-primary-blue flex justify-between items-center text-left">
-                        <span id="dropdownSelectedText" class="truncate">-- 1. Pilih Kegiatan --</span>
-                        <svg class="h-5 w-5 text-gray-400 flex-shrink-0 transition-transform duration-200" id="dropdownIcon"
-                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7">
-                            </path>
-                        </svg>
-                    </button>
-
-                    <div id="dropdownMenu"
-                        class="absolute z-50 w-full mt-2 bg-white border border-gray-100 rounded-2xl shadow-[0_10px_40px_rgb(0,0,0,0.1)] hidden flex-col overflow-hidden origin-top transition-all scale-95 opacity-0">
-                        <div class="p-3 border-b border-gray-50 bg-gray-50/50">
-                            <div class="relative">
-                                <input type="text" id="dropdownSearch" placeholder="Cari kegiatan..."
-                                    class="w-full pl-9 pr-3 py-2 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-blue/20 focus:border-primary-blue transition-all">
-                                <svg class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none"
-                                    stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    <div class="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
+                        <!-- Dropdown Sudah Diabsen -->
+                        <div class="relative w-full sm:w-52 lg:w-60 dropdown-container">
+                            <button type="button" class="dropdown-btn w-full border-2 border-emerald-100 rounded-xl px-4 py-2.5 focus:outline-none focus:border-emerald-400 bg-emerald-50/50 hover:bg-emerald-50 transition font-bold text-emerald-700 flex justify-between items-center text-left shadow-sm">
+                                <div class="flex items-center gap-2 truncate w-full flex-1">
+                                    <div class="w-6 h-6 rounded-lg bg-emerald-200 text-emerald-600 flex items-center justify-center flex-shrink-0">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                                    </div>
+                                    <span class="truncate text-xs lg:text-sm">
+                                        @php
+                                            $kegSudahCollection = collect($kegiatanSudah);
+                                            $selectedSudah = $kegSudahCollection->firstWhere('id', request('kegiatan_id'));
+                                        @endphp
+                                        {{ $selectedSudah ? $selectedSudah->nama_kegiatan : 'Sudah Diabsen' }}
+                                    </span>
+                                </div>
+                                <svg class="h-4 w-4 text-emerald-500 flex-shrink-0 transition-transform duration-200 ml-2 dropdown-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                                 </svg>
+                            </button>
+                            
+                            <div class="absolute z-50 w-full mt-2 bg-white border border-emerald-100 rounded-2xl shadow-[0_10px_40px_rgba(16,185,129,0.15)] hidden flex-col overflow-hidden origin-top transition-all scale-95 opacity-0 dropdown-menu">
+                                <div class="p-2 border-b border-emerald-50 bg-emerald-50/30">
+                                    <div class="relative">
+                                        <input type="text" class="dropdown-search w-full pl-8 pr-3 py-1.5 bg-white border border-emerald-100 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-emerald-200 focus:border-emerald-300 transition-all text-emerald-800" placeholder="Cari kegiatan...">
+                                        <svg class="w-3 h-3 text-emerald-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <ul class="max-h-60 overflow-y-auto p-2 space-y-1 custom-scrollbar">
+                                    <li class="px-3 py-2 rounded-xl cursor-pointer text-xs font-bold text-gray-500 hover:bg-gray-100 transition-colors dropdown-option" data-value="">
+                                        -- Kosongkan Filter --
+                                    </li>
+                                    @foreach ($kegiatanSudah as $kegiatan)
+                                        <li class="px-3 py-2.5 rounded-xl cursor-pointer text-sm font-bold transition-colors dropdown-option flex items-center gap-3 text-gray-600 hover:text-emerald-700 hover:bg-emerald-50 group {{ request('kegiatan_id') == $kegiatan->id ? 'bg-emerald-50 text-emerald-700' : '' }}" data-value="{{ $kegiatan->id }}">
+                                            <span class="truncate flex-1">{{ $kegiatan->nama_kegiatan }}</span>
+                                        </li>
+                                    @endforeach
+                                </ul>
                             </div>
                         </div>
 
-                        <ul id="dropdownOptions" class="max-h-60 overflow-y-auto p-2 space-y-1 custom-scrollbar">
-                            <li class="px-3 py-2.5 rounded-xl cursor-pointer text-sm font-bold text-gray-500 hover:bg-gray-100 transition-colors dropdown-option"
-                                data-value="">
-                                -- 1. Pilih Kegiatan --
-                            </li>
-                            @foreach ($kegiatans as $kegiatan)
-                                @php $isDone = in_array($kegiatan->nama_kegiatan, $sudahAbsen); @endphp
-                                <li class="px-3 py-2.5 rounded-xl cursor-pointer text-sm font-bold transition-colors dropdown-option flex items-center gap-2 {{ $isDone ? 'text-emerald-600 hover:bg-emerald-50' : 'text-red-500 hover:bg-red-50' }}"
-                                    data-value="{{ $kegiatan->id }}" data-nama="{{ $kegiatan->nama_kegiatan }}">
-                                    <span>{{ $isDone ? '✅' : '🔴' }}</span>
-                                    <span class="truncate">{{ $kegiatan->nama_kegiatan }}</span>
-                                </li>
-                            @endforeach
-                        </ul>
+                        <!-- Dropdown Belum Diabsen -->
+                        <div class="relative w-full sm:w-52 lg:w-60 dropdown-container">
+                            <button type="button" class="dropdown-btn w-full border-2 border-red-100 rounded-xl px-4 py-2.5 focus:outline-none focus:border-red-400 bg-red-50/50 hover:bg-red-50 transition font-bold text-red-600 flex justify-between items-center text-left shadow-sm">
+                                <div class="flex items-center gap-2 truncate w-full flex-1">
+                                    <div class="w-6 h-6 rounded-lg bg-red-200 text-red-600 flex items-center justify-center flex-shrink-0">
+                                        <span class="relative flex h-2 w-2">
+                                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                                            <span class="relative inline-flex rounded-full h-2 w-2 bg-red-600"></span>
+                                        </span>
+                                    </div>
+                                    <span class="truncate text-xs lg:text-sm">
+                                        @php
+                                            $kegBelumCollection = collect($kegiatanBelum);
+                                            $selectedBelum = $kegBelumCollection->firstWhere('id', request('kegiatan_id'));
+                                        @endphp
+                                        {{ $selectedBelum ? $selectedBelum->nama_kegiatan : 'Belum Diabsen' }}
+                                    </span>
+                                </div>
+                                <svg class="h-4 w-4 text-red-500 flex-shrink-0 transition-transform duration-200 ml-2 dropdown-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                </svg>
+                            </button>
+                            
+                            <div class="absolute z-50 w-full mt-2 bg-white border border-red-100 rounded-2xl shadow-[0_10px_40px_rgba(239,68,68,0.15)] hidden flex-col overflow-hidden origin-top transition-all scale-95 opacity-0 dropdown-menu">
+                                <div class="p-2 border-b border-red-50 bg-red-50/30">
+                                    <div class="relative">
+                                        <input type="text" class="dropdown-search w-full pl-8 pr-3 py-1.5 bg-white border border-red-100 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-300 transition-all text-red-800" placeholder="Cari kegiatan...">
+                                        <svg class="w-3 h-3 text-red-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <ul class="max-h-60 overflow-y-auto p-2 space-y-1 custom-scrollbar">
+                                    <li class="px-3 py-2 rounded-xl cursor-pointer text-xs font-bold text-gray-500 hover:bg-gray-100 transition-colors dropdown-option" data-value="">
+                                        -- Kosongkan Filter --
+                                    </li>
+                                    @foreach ($kegiatanBelum as $kegiatan)
+                                        <li class="px-3 py-2.5 rounded-xl cursor-pointer text-sm font-bold transition-colors dropdown-option flex items-center gap-3 text-gray-600 hover:text-red-600 hover:bg-red-50 group {{ request('kegiatan_id') == $kegiatan->id ? 'bg-red-50 text-red-600' : '' }}" data-value="{{ $kegiatan->id }}">
+                                            <span class="truncate flex-1">{{ $kegiatan->nama_kegiatan }}</span>
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        </div>
                     </div>
-                </div>
 
                 <div class="relative w-full md:w-64">
                     <input type="text" name="search" id="searchInput" value="{{ request('search') }}"
@@ -376,80 +432,87 @@
         });
 
         function initCustomDropdown() {
-            const container = document.getElementById('customDropdownContainer');
-            if (!container) return;
+            const containers = document.querySelectorAll('.dropdown-container');
+            const masterSelect = document.getElementById('master_kegiatan');
+            if (!containers.length || !masterSelect) return;
 
-            const button = document.getElementById('dropdownButton');
-            const menu = document.getElementById('dropdownMenu');
-            const search = document.getElementById('dropdownSearch');
-            const options = document.querySelectorAll('.dropdown-option');
-            const select = document.getElementById('master_kegiatan');
-            const selectedText = document.getElementById('dropdownSelectedText');
-            const icon = document.getElementById('dropdownIcon');
+            containers.forEach(container => {
+                const button = container.querySelector('.dropdown-btn');
+                const menu = container.querySelector('.dropdown-menu');
+                const icon = container.querySelector('.dropdown-icon');
+                const search = container.querySelector('.dropdown-search');
+                const options = container.querySelectorAll('.dropdown-option');
 
-            const initSelected = select.querySelector('option:checked');
-            if (initSelected && initSelected.value !== "") {
-                selectedText.innerHTML = initSelected.innerHTML;
-                selectedText.className = initSelected.className + " truncate";
-            }
+                button.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const isHidden = menu.classList.contains('hidden');
 
-            button.addEventListener('click', function(e) {
-                e.stopPropagation();
-                const isHidden = menu.classList.contains('hidden');
+                    containers.forEach(otherContainer => {
+                        if (otherContainer !== container) {
+                            tutupDropdown(otherContainer);
+                        }
+                    });
 
-                if (isHidden) {
-                    menu.classList.remove('hidden');
-                    setTimeout(() => {
-                        menu.classList.remove('scale-95', 'opacity-0');
-                        menu.classList.add('scale-100', 'opacity-100');
-                    }, 10);
-                    icon.classList.add('rotate-180');
-                    search.focus();
-                } else {
-                    tutupDropdown();
-                }
-            });
-
-            function tutupDropdown() {
-                menu.classList.remove('scale-100', 'opacity-100');
-                menu.classList.add('scale-95', 'opacity-0');
-                icon.classList.remove('rotate-180');
-                setTimeout(() => {
-                    menu.classList.add('hidden');
-                }, 200);
-            }
-
-            search.addEventListener('input', function() {
-                const val = this.value.toLowerCase();
-                options.forEach(opt => {
-                    if (opt.innerText.toLowerCase().includes(val)) {
-                        opt.classList.remove('hidden');
+                    if (isHidden) {
+                        menu.classList.remove('hidden');
+                        setTimeout(() => {
+                            menu.classList.remove('scale-95', 'opacity-0');
+                            menu.classList.add('scale-100', 'opacity-100');
+                        }, 10);
+                        icon.classList.add('rotate-180');
+                        if (search) search.focus();
                     } else {
-                        opt.classList.add('hidden');
+                        tutupDropdown(container);
                     }
                 });
-            });
 
-            options.forEach(opt => {
-                opt.addEventListener('click', function() {
-                    const val = this.getAttribute('data-value');
-                    select.value = val;
-                    selectedText.innerHTML = this.innerHTML;
-                    selectedText.className = "truncate";
-                    if (this.classList.contains('text-emerald-600')) selectedText.classList.add(
-                        'text-emerald-600');
-                    if (this.classList.contains('text-red-500')) selectedText.classList.add('text-red-500');
+                if (search) {
+                    search.addEventListener('input', function() {
+                        const val = this.value.toLowerCase();
+                        options.forEach(opt => {
+                            if (opt.innerText.toLowerCase().includes(val)) {
+                                opt.classList.remove('hidden');
+                            } else {
+                                opt.classList.add('hidden');
+                            }
+                        });
+                    });
+                }
 
-                    tutupDropdown();
-                    document.getElementById('filterForm').submit();
+                options.forEach(opt => {
+                    opt.addEventListener('click', function() {
+                        const val = this.getAttribute('data-value');
+                        masterSelect.value = val;
+                        tutupSemuaDropdown();
+                        document.getElementById('filterForm').submit();
+                    });
                 });
             });
 
             document.addEventListener('click', function(e) {
-                if (!container.contains(e.target) && !menu.classList.contains('hidden')) {
-                    tutupDropdown();
+                if (!e.target.closest('.dropdown-container')) {
+                    tutupSemuaDropdown();
                 }
             });
+
+            function tutupSemuaDropdown() {
+                containers.forEach(container => {
+                    tutupDropdown(container);
+                });
+            }
+
+            function tutupDropdown(containerElement) {
+                const menu = containerElement.querySelector('.dropdown-menu');
+                const icon = containerElement.querySelector('.dropdown-icon');
+                if (!menu.classList.contains('hidden')) {
+                    menu.classList.remove('scale-100', 'opacity-100');
+                    menu.classList.add('scale-95', 'opacity-0');
+                    icon.classList.remove('rotate-180');
+                    setTimeout(() => {
+                        menu.classList.add('hidden');
+                    }, 200);
+                }
+            }
         }
 
         function syncSemuaKegiatan() {

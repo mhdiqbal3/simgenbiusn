@@ -80,7 +80,7 @@ class PoinController extends Controller
                             if (strpos($valStr, '>') !== false) {
                                 $min += 1;
                             }
-                            
+
                             if (preg_match('/sp\s*1/i', $label)) $sp1Min = $min;
                             elseif (preg_match('/sp\s*2/i', $label)) $sp2Min = $min;
                             elseif (preg_match('/sp\s*3/i', $label)) $sp3Min = $min;
@@ -120,7 +120,7 @@ class PoinController extends Controller
             } elseif ($grandTotal >= $sp1Min) {
                 $sp = 'SP 1';
             }
-            
+
             $poinRecord->update(['sp' => $sp]);
 
             $teksManual = ($poinRecord->keterangan && $poinRecord->keterangan != '-') ? $poinRecord->keterangan : "";
@@ -217,8 +217,7 @@ class PoinController extends Controller
         }
         return redirect()->back()->with('success', 'Teks keterangan berhasil diperbarui!');
     }
-    // Fungsi untuk membatalkan pemberian poin tambahan/manual
-    // Fungsi untuk membatalkan pemberian poin tambahan/manual
+
     // Fungsi untuk membatalkan salah satu item poin pilihan admin/sekretaris
     public function batalPoin(Request $request, $id)
     {

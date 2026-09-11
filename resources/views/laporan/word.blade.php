@@ -90,7 +90,7 @@
         }
 
         .uang {
-            text-align: right;
+            text-align: left;
             white-space: nowrap;
         }
 

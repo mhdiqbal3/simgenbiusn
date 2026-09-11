@@ -649,7 +649,7 @@
                                     class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 bg-gray-50 cursor-pointer">
                                 <p class="text-xs text-gray-400 mt-2 font-medium">Format yang didukung: JPG, JPEG, PNG.
                                     Maksimal
-                                    10MB.</p>
+                                    100MB.</p>
                             </div>
                             <div class="pt-4 flex justify-end gap-3 border-t border-gray-100 mt-6">
                                 <button type="button" onclick="toggleModal('modalUploadDokumentasi')"
