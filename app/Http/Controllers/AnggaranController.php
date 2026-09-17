@@ -39,7 +39,7 @@ class AnggaranController extends Controller
             'kegiatan_id' => 'required|exists:kegiatans,id',
             'tujuan' => 'required',
             'manfaat' => 'required',
-            'items' => 'required|array',
+            'items' => 'nullable|array',
         ]);
 
         // 1. Update Informasi Kegiatan (A, B, C, D)
@@ -55,15 +55,17 @@ class AnggaranController extends Controller
 
         // 2. Simpan Rincian RAB (E)
         Anggaran::where('kegiatan_id', $request->kegiatan_id)->delete();
-        foreach ($request->items as $item) {
-            Anggaran::create([
-                'kegiatan_id'  => $request->kegiatan_id,
-                'nama_barang'  => $item['nama'],
-                'harga_satuan' => $item['harga'],
-                'jumlah'       => $item['qty'],
-                'satuan'       => $item['satuan'],
-                'total'        => $item['harga'] * $item['qty'],
-            ]);
+        if ($request->has('items') && is_array($request->items)) {
+            foreach ($request->items as $item) {
+                Anggaran::create([
+                    'kegiatan_id'  => $request->kegiatan_id,
+                    'nama_barang'  => $item['nama'],
+                    'harga_satuan' => $item['harga'],
+                    'jumlah'       => $item['qty'],
+                    'satuan'       => $item['satuan'],
+                    'total'        => $item['harga'] * $item['qty'],
+                ]);
+            }
         }
 
         return redirect()->back()->with('success', 'Rancangan Anggaran Berhasil Disimpan!');

@@ -1158,39 +1158,6 @@
                                 </ul>
                             </div>
 
-                            @if(isset($kategoriPoins) && $kategoriPoins->count() > 0)
-                                @foreach($kategoriPoins as $kp)
-                                    <div class="space-y-4">
-                                        <h4 class="text-blue-600 font-black uppercase text-xs tracking-widest flex items-center gap-2">
-                                            <span class="w-2 h-2 rounded-full bg-blue-500"></span> {{ $kp->nama_kategori }}
-                                        </h4>
-                                        <div class="bg-white border border-blue-100 rounded-2xl p-5 space-y-4 shadow-[0_8px_30px_rgb(0,0,0,0.06)]">
-                                            @php $aturanArray = explode("\n", str_replace("\r", "", $kp->aturan ?? "")); @endphp
-                                            @foreach ($aturanArray as $item)
-                                                @if (trim($item) != '')
-                                                    @php
-                                                        $parts = explode(':', $item);
-                                                        $name = $parts[0] ?? $item;
-                                                        $score = $parts[1] ?? '';
-                                                    @endphp
-                                                    <div class="flex justify-between items-center text-sm border-b border-blue-50 pb-3 gap-3">
-                                                        <span class="text-gray-600 leading-tight">{{ trim($name) }}</span>
-                                                        @if (trim($score) != '')
-                                                            @php
-                                                                preg_match('/-?\d+/', $score, $scoreMatches);
-                                                                $scoreVal = isset($scoreMatches[0]) ? $scoreMatches[0] : '';
-                                                            @endphp
-                                                            <span class="bg-blue-50 text-blue-600 font-bold px-3 py-1 rounded-lg whitespace-nowrap flex-shrink-0">
-                                                                {{ strpos($scoreVal, '-') !== false ? '' : '+ ' }}{{ $scoreVal }} Poin
-                                                            </span>
-                                                        @endif
-                                                    </div>
-                                                @endif
-                                            @endforeach
-                                        </div>
-                                    </div>
-                                @endforeach
-                            @endif
 
                         </div>
                     </div>
