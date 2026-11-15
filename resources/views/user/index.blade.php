@@ -355,11 +355,19 @@
 
                 <div id="containerTtdTambah" class="hidden">
                     <label class="block text-xs font-black text-gray-500 uppercase tracking-widest mb-1.5">Upload Tanda
-                        Tangan (Khusus Admin)</label>
+                        Tangan (Ketua & Sekretaris)</label>
                     <input type="file" name="ttd" accept="image/png, image/jpeg, image/jpg"
                         class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary-blue focus:border-primary-blue transition-all bg-gray-50 focus:bg-white font-medium text-gray-800">
                     <p class="text-[10px] text-gray-400 mt-1 italic">*Tanda tangan akan digunakan di seluruh dokumen
                         laporan cetak (PNG background transparan disarankan).</p>
+                </div>
+
+                <div id="containerStempelTambah" class="hidden">
+                    <label class="block text-xs font-black text-gray-500 uppercase tracking-widest mb-1.5">Upload Stempel
+                        (Khusus Admin / Ketua)</label>
+                    <input type="file" name="stempel" accept="image/png, image/jpeg, image/jpg"
+                        class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary-blue focus:border-primary-blue transition-all bg-gray-50 focus:bg-white font-medium text-gray-800">
+                    <p class="text-[10px] text-gray-400 mt-1 italic">*Stempel resmi organisasi yang digunakan pada surat dan dokumen resmi (PNG background transparan disarankan).</p>
                 </div>
 
                 <div class="mt-0">
@@ -480,9 +488,9 @@
                             </select>
                         </div>
                     </div>
-                    <div id="containerTtdEdit{{ $user->id }}" class="{{ $user->role == 'admin' ? '' : 'hidden' }}">
+                    <div id="containerTtdEdit{{ $user->id }}" class="{{ in_array($user->role, ['admin', 'sekretaris']) ? '' : 'hidden' }}">
                         <label class="block text-xs font-black text-gray-500 uppercase tracking-widest mb-1.5">Tanda Tangan
-                            (Khusus Admin)
+                            (Ketua & Sekretaris)
                         </label>
 
                         @if ($user->ttd)
@@ -512,6 +520,40 @@
                             class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all bg-gray-50 focus:bg-white font-medium text-gray-800">
                         <p class="text-[10px] text-gray-400 mt-1.5 italic">*Biarkan "No file chosen" jika Anda tidak ingin
                             mengubah tanda tangan saat ini.</p>
+                    </div>
+
+                    <div id="containerStempelEdit{{ $user->id }}" class="{{ $user->role == 'admin' ? '' : 'hidden' }}">
+                        <label class="block text-xs font-black text-gray-500 uppercase tracking-widest mb-1.5">Stempel
+                            (Khusus Ketua / Admin)
+                        </label>
+
+                        @if ($user->stempel)
+                            <div
+                                class="mb-3 p-3 bg-white border border-emerald-100 rounded-xl flex items-center gap-4 shadow-sm">
+                                <div
+                                    class="w-16 h-16 bg-gray-50 border border-gray-200 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0 p-1">
+                                    <img src="{{ asset('storage/' . $user->stempel) }}" alt="Stempel"
+                                        class="max-w-full max-h-full object-contain">
+                                </div>
+                                <div>
+                                    <p class="text-xs font-extrabold text-gray-700">Stempel Saat Ini</p>
+                                    <p class="text-[10px] font-bold text-emerald-600 mt-0.5 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
+                                                d="M5 13l4 4L19 7"></path>
+                                        </svg>
+                                        Stempel yang Tersimpan
+                                    </p>
+                                </div>
+                            </div>
+                        @endif
+
+                        <label class="block text-[10px] font-bold text-gray-400 mb-1">Ganti Stempel Baru
+                            (Opsional)</label>
+                        <input type="file" name="stempel" accept="image/png, image/jpeg, image/jpg"
+                            class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all bg-gray-50 focus:bg-white font-medium text-gray-800">
+                        <p class="text-[10px] text-gray-400 mt-1.5 italic">*Biarkan "No file chosen" jika Anda tidak ingin
+                            mengubah stempel saat ini.</p>
                     </div>
 
                     <div class="mt-0">
@@ -623,18 +665,36 @@
         });
 
         // ========================================================
-        // SCRIPT BARU: FUNGSI TOGGLE TANDA TANGAN (HANYA ADMIN)
+        // SCRIPT: FUNGSI TOGGLE TANDA TANGAN & STEMPEL
+        // Ketua/Admin: Tanda Tangan & Stempel
+        // Sekretaris: Hanya Tanda Tangan
         // ========================================================
 
         // Fungsi untuk Modal Tambah User
         function toggleTtdTambah() {
             const roleSelect = document.getElementById('roleTambah');
             const containerTtd = document.getElementById('containerTtdTambah');
+            const containerStempel = document.getElementById('containerStempelTambah');
 
-            if (roleSelect.value === 'admin') {
-                containerTtd.classList.remove('hidden');
-            } else {
-                containerTtd.classList.add('hidden');
+            const isKetua = (roleSelect && roleSelect.value === 'admin');
+            const isSekretaris = (roleSelect && roleSelect.value === 'sekretaris');
+
+            // Tanda Tangan: Admin (Ketua) & Sekretaris
+            if (containerTtd) {
+                if (isKetua || isSekretaris) {
+                    containerTtd.classList.remove('hidden');
+                } else {
+                    containerTtd.classList.add('hidden');
+                }
+            }
+
+            // Stempel: Hanya Admin (Ketua)
+            if (containerStempel) {
+                if (isKetua) {
+                    containerStempel.classList.remove('hidden');
+                } else {
+                    containerStempel.classList.add('hidden');
+                }
             }
         }
 
@@ -642,11 +702,27 @@
         function toggleTtdEdit(userId) {
             const roleSelect = document.getElementById('roleEdit' + userId);
             const containerTtd = document.getElementById('containerTtdEdit' + userId);
+            const containerStempel = document.getElementById('containerStempelEdit' + userId);
 
-            if (roleSelect.value === 'admin') {
-                containerTtd.classList.remove('hidden');
-            } else {
-                containerTtd.classList.add('hidden');
+            const isKetua = (roleSelect && roleSelect.value === 'admin');
+            const isSekretaris = (roleSelect && roleSelect.value === 'sekretaris');
+
+            // Tanda Tangan: Admin (Ketua) & Sekretaris
+            if (containerTtd) {
+                if (isKetua || isSekretaris) {
+                    containerTtd.classList.remove('hidden');
+                } else {
+                    containerTtd.classList.add('hidden');
+                }
+            }
+
+            // Stempel: Hanya Admin (Ketua)
+            if (containerStempel) {
+                if (isKetua) {
+                    containerStempel.classList.remove('hidden');
+                } else {
+                    containerStempel.classList.add('hidden');
+                }
             }
         }
         // ========================================================

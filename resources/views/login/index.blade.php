@@ -4,7 +4,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Sistem Informasi Manajemen GenBI</title>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <!-- SEO Meta Tags -->
+    <title>Login - Sistem Informasi Manajemen GenBI USN Kolaka</title>
+    <meta name="description" content="Portal Masuk Resmi Sistem Informasi Manajemen Generasi Baru Indonesia (SIM GenBI) Komisariat Universitas Sembilanbelas November Kolaka. Akses kelola surat, kegiatan, absensi, dan penilaian poin keaktifan.">
+    <meta name="keywords" content="Login SIM GenBI, GenBI USN Kolaka, Sistem Informasi GenBI, Portal Mahasiswa Bank Indonesia Sultra, Administrasi GenBI">
+    <meta name="author" content="GenBI Sultra Komisariat USN Kolaka">
+    <meta name="robots" content="index, follow">
+    <meta name="theme-color" content="#2563eb">
+    <link rel="canonical" href="{{ url('/') }}">
+
+    <!-- Open Graph / Facebook / WhatsApp -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ url('/') }}">
+    <meta property="og:title" content="Login - Sistem Informasi Manajemen GenBI USN Kolaka">
+    <meta property="og:description" content="Masuk ke SIM GenBI Komisariat USN Kolaka untuk mengelola surat, kegiatan, absensi, dan transparansi keaktifan anggota komunitas penerima beasiswa Bank Indonesia.">
+    <meta property="og:image" content="{{ asset('logo_bi.png') }}">
+    <meta property="og:site_name" content="SIM GenBI USN Kolaka">
+    <meta property="og:locale" content="id_ID">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Login - SIM GenBI USN Kolaka">
+    <meta name="twitter:description" content="Portal Masuk Resmi SIM GenBI Universitas Sembilanbelas November Kolaka.">
+    <meta name="twitter:image" content="{{ asset('logo_bi.png') }}">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{{ asset('logo_bi.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('logo_bi.png') }}">
+
+    <!-- Structured Data (Schema.org JSON-LD) -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "WebApplication",
+                "name": "SIM GenBI USN Kolaka",
+                "applicationCategory": "BusinessApplication",
+                "operatingSystem": "All",
+                "url": "{{ url('/') }}",
+                "description": "Sistem Informasi Manajemen Terpadu GenBI Sultra Komisariat USN Kolaka.",
+                "publisher": {
+                    "@type": "Organization",
+                    "name": "GenBI Sultra Komisariat USN Kolaka",
+                    "url": "{{ url('/') }}",
+                    "logo": "{{ asset('logo_bi.png') }}"
+                }
+            }
+        ]
+    }
+    </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {

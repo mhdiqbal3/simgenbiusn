@@ -22,7 +22,6 @@
 
         .kop-table {
             width: 100%;
-            border-bottom: 3px double black;
             margin-bottom: 20px;
         }
 
@@ -70,26 +69,24 @@
 <body>
 
     <table class="kop-table"
-        style="width: 100%; border-bottom: 3px double black; margin-bottom: 20px; border-collapse: collapse;">
+        style="width: 100%; margin-bottom: 20px; border-collapse: collapse;">
         <tr>
-            <td width="15%" style="text-align: center; vertical-align: middle; padding: 10px 0;">
+            <td width="15%" style="text-align: center; vertical-align: middle; padding-top: 10px; padding-bottom: 0; border-bottom: 4px solid black; border-top: none; border-left: none; border-right: none;">
                 @if ($logoL)
                     <img src="{{ $logoL }}" width="80" style="display: block; margin: 0 auto;">
                 @endif
             </td>
 
-            <td width="70%" style="text-align: center; line-height: 1.2; padding: 10px 0;">
-                <b
-                    style="font-size: 16pt; text-transform: uppercase;">{{ $kop->baris1 ?? 'GENERASI BARU INDONESIA (GenBI)' }}</b><br>
-                <b
-                    style="font-size: 14pt; text-transform: uppercase;">{{ $kop->baris2 ?? 'PROVINSI SULAWESI TENGGARA' }}</b><br>
-                <b
-                    style="font-size: 14pt; text-transform: uppercase;">{{ $kop->baris3 ?? 'KOMISARIAT USN KOLAKA' }}</b><br>
-                <i style="font-size: 10pt;">{{ $kop->alamat ?? '' }}</i><br>
-                <i style="font-size: 10pt;">{{ $kop->kontak ?? '' }}</i>
+            <td width="70%" style="text-align: center; line-height: 1.2; padding-top: 10px; padding-bottom: 0; border-bottom: 4px solid black; border-top: none; border-left: none; border-right: none;">
+                <b style="font-size: 14pt; text-transform: uppercase;">GENERASI BARU INDONESIA (GenBI)</b><br>
+                <b style="font-size: 12pt; text-transform: uppercase;">PROVINSI SULAWESI TENGGARA</b><br>
+                <b style="font-size: 12pt; text-transform: uppercase;">KOMISARIAT USN KOLAKA TAHUN 2026/2027</b><br>
+                <span style="font-size: 10pt; font-style: italic;">Sekretariat Usn: Jl. Pemuda, Gang lorong Ayam Geprek Berkah,</span><br>
+                <span style="font-size: 10pt; font-style: italic;">Balandete, Kec. Kolaka, Kab. Kolaka, Provinsi Sulawesi Tenggara.</span><br>
+                <span style="font-size: 10pt; font-style: italic;">No. Hp: 0823-7285-6787 Email: <span style="color: blue;">genbisultra@gmail.com</span></span>
             </td>
 
-            <td width="15%" style="text-align: center; vertical-align: middle; padding: 10px 0;">
+            <td width="15%" style="text-align: center; vertical-align: middle; padding-top: 10px; padding-bottom: 0; border-bottom: 4px solid black; border-top: none; border-left: none; border-right: none;">
                 @if ($logoR)
                     <img src="{{ $logoR }}" width="80" style="display: block; margin: 0 auto;">
                 @endif

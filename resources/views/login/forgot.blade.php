@@ -4,7 +4,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lupa Sandi - Sistem Informasi GenBI</title>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <!-- SEO Meta Tags -->
+    <title>Lupa Sandi - Sistem Informasi GenBI USN Kolaka</title>
+    <meta name="description" content="Halaman pemulihan kata sandi akun SIM GenBI Komisariat Universitas Sembilanbelas November Kolaka.">
+    <meta name="robots" content="noindex, follow">
+    <meta name="theme-color" content="#2563eb">
+    <link rel="canonical" href="{{ route('password.forgot') }}">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ route('password.forgot') }}">
+    <meta property="og:title" content="Lupa Sandi - SIM GenBI USN Kolaka">
+    <meta property="og:description" content="Pemulihan kata sandi akun SIM GenBI Komisariat Universitas Sembilanbelas November Kolaka.">
+    <meta property="og:image" content="{{ asset('logo_bi.png') }}">
+    <meta property="og:site_name" content="SIM GenBI USN Kolaka">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{{ asset('logo_bi.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('logo_bi.png') }}">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {

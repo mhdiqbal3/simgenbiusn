@@ -152,10 +152,18 @@ class DashboardController extends Controller
 
     public function uploadDokumentasi(Request $request)
     {
-        $request->validate(['foto' => 'required|image|max:102400']);
+        $request->validate([
+            'foto' => 'required|image|mimes:jpeg,png,jpg,webp|max:10240'
+        ], [
+            'foto.image' => 'Berkas harus berupa gambar.',
+            'foto.mimes' => 'Format gambar yang diperbolehkan: jpeg, png, jpg, webp.',
+            'foto.max' => 'Ukuran gambar maksimal adalah 10MB.'
+        ]);
+
         if ($request->hasFile('foto')) {
             $file = $request->file('foto');
-            $filename = time() . '_' . $file->getClientOriginalName();
+            $cleanName = preg_replace('/[^a-zA-Z0-9_\.-]/', '_', $file->getClientOriginalName());
+            $filename = time() . '_' . $cleanName;
             $file->move(public_path('dokumentasi'), $filename);
         }
         return redirect()->back()->with('success', 'Foto dokumentasi berhasil ditambahkan!');
@@ -171,7 +179,9 @@ class DashboardController extends Controller
         $deletedCount = 0;
         if ($request->has('filenames') && is_array($request->filenames)) {
             foreach ($request->filenames as $filename) {
-                $path = public_path('dokumentasi/' . $filename);
+                // Cegah Path Traversal dengan membatasi nama berkas hanya nama murni
+                $safeFilename = basename($filename);
+                $path = public_path('dokumentasi/' . $safeFilename);
                 if (File::exists($path)) {
                     File::delete($path);
                     $deletedCount++;
@@ -179,7 +189,9 @@ class DashboardController extends Controller
             }
             return redirect()->back()->with('success', $deletedCount . ' Foto dokumentasi berhasil dihapus!');
         } else if ($request->has('filename')) {
-            $path = public_path('dokumentasi/' . $request->filename);
+            // Cegah Path Traversal
+            $safeFilename = basename($request->filename);
+            $path = public_path('dokumentasi/' . $safeFilename);
             if (File::exists($path)) {
                 File::delete($path);
                 $deletedCount = 1;

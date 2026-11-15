@@ -35,11 +35,13 @@ class UserController extends Controller
             'role' => 'required|in:admin,anggota,sekretaris,bendahara,pembina',
             'photo' => 'nullable|image|mimes:jpeg,png,jpg|max:10240',
             'ttd' => 'nullable|image|mimes:jpeg,png,jpg|max:10240',
+            'stempel' => 'nullable|image|mimes:jpeg,png,jpg|max:10240',
         ], [
             'password.min' => 'Kata sandi minimal harus :min karakter.',
             'email.unique' => 'Alamat email ini sudah terdaftar sebelumnya.',
             'photo.max' => 'Ukuran foto maksimal adalah 10MB.',
-            'ttd.max' => 'Ukuran tanda tangan maksimal adalah 10MB.'
+            'ttd.max' => 'Ukuran tanda tangan maksimal adalah 10MB.',
+            'stempel.max' => 'Ukuran stempel maksimal adalah 10MB.'
         ]);
 
         // Logika Upload Foto
@@ -54,6 +56,12 @@ class UserController extends Controller
             $ttdPath = $request->file('ttd')->store('ttd', 'public');
         }
 
+        // Logika Upload Stempel
+        $stempelPath = null;
+        if ($request->hasFile('stempel')) {
+            $stempelPath = $request->file('stempel')->store('stempel', 'public');
+        }
+
         User::create([
             'name' => $request->name,
             'nim' => $request->nim,
@@ -65,6 +73,7 @@ class UserController extends Controller
             'jabatan' => $request->jabatan,
             'photo' => $photoPath,
             'ttd' => $ttdPath, // <-- Simpan Nama File TTD ke Database
+            'stempel' => $stempelPath, // <-- Simpan Nama File Stempel ke Database
         ]);
 
         if ($request->ajax() || $request->wantsJson()) {
@@ -81,8 +90,13 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|max:255|unique:users,email,' . $id,
             'role' => 'required|in:admin,anggota,sekretaris,bendahara,pembina',
-            'photo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-            'ttd' => 'nullable|image|mimes:jpeg,png,jpg|max:2048', // <-- Tambahan Validasi TTD
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg|max:10240',
+            'ttd' => 'nullable|image|mimes:jpeg,png,jpg|max:10240',
+            'stempel' => 'nullable|image|mimes:jpeg,png,jpg|max:10240',
+        ], [
+            'photo.max' => 'Ukuran foto maksimal adalah 10MB.',
+            'ttd.max' => 'Ukuran tanda tangan maksimal adalah 10MB.',
+            'stempel.max' => 'Ukuran stempel maksimal adalah 10MB.'
         ]);
 
         $user = User::findOrFail($id);
@@ -122,6 +136,16 @@ class UserController extends Controller
             $dataToUpdate['ttd'] = $request->file('ttd')->store('ttd', 'public');
         }
 
+        // Logika Update Stempel
+        if ($request->hasFile('stempel')) {
+            // Hapus stempel lama dari folder storage agar tidak menumpuk
+            if ($user->stempel && Storage::disk('public')->exists($user->stempel)) {
+                Storage::disk('public')->delete($user->stempel);
+            }
+            // Upload stempel baru
+            $dataToUpdate['stempel'] = $request->file('stempel')->store('stempel', 'public');
+        }
+
         // ==============================================================
         // KUNCI PERBAIKAN: Jika user ini sedang meminta reset sandi, 
         // matikan tanda merahnya otomatis saat Admin menekan tombol simpan
@@ -147,6 +171,11 @@ class UserController extends Controller
         // Hapus file tanda tangan dari penyimpanan saat user dihapus
         if ($user->ttd && Storage::disk('public')->exists($user->ttd)) {
             Storage::disk('public')->delete($user->ttd);
+        }
+
+        // Hapus file stempel dari penyimpanan saat user dihapus
+        if ($user->stempel && Storage::disk('public')->exists($user->stempel)) {
+            Storage::disk('public')->delete($user->stempel);
         }
 
         // Pembersihan Total (Cascade Delete) agar tidak ada data hantu di Absensi & Poin

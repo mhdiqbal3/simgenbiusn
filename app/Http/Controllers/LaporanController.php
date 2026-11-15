@@ -6,6 +6,7 @@ use App\Models\Kegiatan;
 use App\Models\User;
 use App\Models\Poin;
 use App\Models\Absensi;
+use App\Models\Anggaran;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Auth;
@@ -132,9 +133,10 @@ class LaporanController extends Controller
         $kop = (object)[
             'baris1' => 'GENERASI BARU INDONESIA (GenBI)',
             'baris2' => 'PROVINSI SULAWESI TENGGARA',
-            'baris3' => 'KOMISARIAT USN KOLAKA',
-            'alamat' => 'Sekretariat Usn: Jl. Pemuda, Tahoa, Kec Kolaka, Kab Kolaka, Sulawesi Tenggara.',
-            'kontak' => 'No. Hp: 082228576830 Email: genbisultra@gmail.com',
+            'baris3' => 'KOMISARIAT USN KOLAKA TAHUN 2026/2027',
+            'alamat1' => 'Sekretariat Usn: Jl. Pemuda, Gang lorong Ayam Geprek Berkah,',
+            'alamat2' => 'Balandete, Kec. Kolaka, Kab. Kolaka, Provinsi Sulawesi Tenggara.',
+            'kontak' => 'No. Hp: 0823-7285-6787 Email: genbisultra@gmail.com',
         ];
 
         // SAKELAR OTOMATIS: Cek apakah ini diakses dari link QR Code
@@ -166,9 +168,10 @@ class LaporanController extends Controller
         $kop = (object)[
             'baris1' => 'GENERASI BARU INDONESIA (GenBI)',
             'baris2' => 'PROVINSI SULAWESI TENGGARA',
-            'baris3' => 'KOMISARIAT USN KOLAKA',
-            'alamat' => 'Sekretariat Usn: Jl. Pemuda, Tahoa, Kec Kolaka, Kab Kolaka, Sulawesi Tenggara.',
-            'kontak' => 'No. Hp: 082228576830 Email: genbisultra@gmail.com',
+            'baris3' => 'KOMISARIAT USN KOLAKA TAHUN 2026/2027',
+            'alamat1' => 'Sekretariat Usn: Jl. Pemuda, Gang lorong Ayam Geprek Berkah,',
+            'alamat2' => 'Balandete, Kec. Kolaka, Kab. Kolaka, Provinsi Sulawesi Tenggara.',
+            'kontak' => 'No. Hp: 0823-7285-6787 Email: genbisultra@gmail.com',
         ];
 
         // SAKELAR OTOMATIS
@@ -303,9 +306,10 @@ class LaporanController extends Controller
         $kop = (object)[
             'baris1' => 'GENERASI BARU INDONESIA (GenBI)',
             'baris2' => 'PROVINSI SULAWESI TENGGARA',
-            'baris3' => 'KOMISARIAT USN KOLAKA',
-            'alamat' => 'Sekretariat Usn: Jl. Pemuda, Tahoa, Kec Kolaka, Kab Kolaka, Sulawesi Tenggara.',
-            'kontak' => 'No. Hp: 082228576830 Email: genbisultra@gmail.com',
+            'baris3' => 'KOMISARIAT USN KOLAKA TAHUN 2026/2027',
+            'alamat1' => 'Sekretariat Usn: Jl. Pemuda, Gang lorong Ayam Geprek Berkah,',
+            'alamat2' => 'Balandete, Kec. Kolaka, Kab. Kolaka, Provinsi Sulawesi Tenggara.',
+            'kontak' => 'No. Hp: 0823-7285-6787 Email: genbisultra@gmail.com',
         ];
 
         // SAKELAR OTOMATIS
@@ -331,5 +335,51 @@ class LaporanController extends Controller
         }
 
         abort(404, 'Dokumen tidak ditemukan.');
+    }
+
+    public function destroy(Request $request)
+    {
+        $jenis = $request->jenis;
+
+        // Validasi hak akses khusus role bendahara
+        if (Auth::user()->role == 'bendahara' && $jenis !== 'Rancang Anggaran') {
+            abort(403, 'Akses ditolak.');
+        }
+
+        if ($jenis == 'Absensi') {
+            $id = $request->id;
+            $kegiatan = Kegiatan::find($id);
+            if ($kegiatan) {
+                $nama = $kegiatan->nama_kegiatan;
+                Absensi::where('kegiatan', $nama)
+                    ->orWhere('kegiatan', 'LIKE', '%' . $nama . '%')
+                    ->delete();
+
+                return redirect()->back()->with('success', 'Data Laporan Absensi kegiatan "' . $nama . '" berhasil dihapus!');
+            }
+            return redirect()->back()->with('error', 'Data kegiatan absensi tidak ditemukan.');
+        } elseif ($jenis == 'Rancang Anggaran') {
+            $devisi = $request->devisi;
+            $queryKeg = Kegiatan::where('devisi', $devisi);
+            if ($request->filled('bulan')) {
+                $queryKeg->whereMonth('tanggal', $request->bulan);
+            }
+            if ($request->filled('tahun')) {
+                $queryKeg->whereYear('tanggal', $request->tahun);
+            }
+            $kegiatanIds = $queryKeg->pluck('id');
+            Anggaran::whereIn('kegiatan_id', $kegiatanIds)->delete();
+
+            return redirect()->back()->with('success', 'Data Rancangan Anggaran Devisi ' . $devisi . ' berhasil dihapus!');
+        } elseif ($jenis == 'Poin Keaktifan') {
+            Poin::query()->update([
+                'total_poin' => '0',
+                'sp' => 'Aman',
+                'keterangan' => '-'
+            ]);
+            return redirect()->back()->with('success', 'Data Rekapitulasi Poin Keaktifan & SP berhasil di-reset!');
+        }
+
+        return redirect()->back()->with('error', 'Jenis laporan tidak dikenali.');
     }
 }

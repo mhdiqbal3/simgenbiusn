@@ -4,7 +4,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SIM GenBI</title>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <!-- SEO Meta Tags -->
+    <title>@yield('title', 'SIM GenBI - Sistem Informasi Manajemen GenBI Sultra Koms. USN Kolaka')</title>
+    <meta name="description" content="@yield('meta_description', 'Sistem Informasi Manajemen Generasi Baru Indonesia (SIM GenBI) Komisariat Universitas Sembilanbelas November Kolaka. Platform digital terpadu untuk administrasi surat, kegiatan, absensi, dan penilaian keaktifan penerima Beasiswa Bank Indonesia.')">
+    <meta name="keywords" content="GenBI, SIM GenBI, GenBI Sultra, Bank Indonesia, USN Kolaka, Beasiswa BI, Manajemen Surat, Kegiatan, Absensi, Mahasiswa">
+    <meta name="author" content="GenBI Sultra Komisariat USN Kolaka">
+    <meta name="robots" content="index, follow">
+    <meta name="theme-color" content="#2563eb">
+    <link rel="canonical" href="{{ url()->current() }}">
+
+    <!-- Open Graph / Facebook / WhatsApp -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:title" content="@yield('og_title', 'SIM GenBI - Sistem Informasi Manajemen GenBI Sultra Koms. USN Kolaka')">
+    <meta property="og:description" content="@yield('og_description', 'Platform digital resmi GenBI Sultra Koms. USN Kolaka untuk efisiensi organisasi dan tata kelola surat serta keaktifan anggota.')">
+    <meta property="og:image" content="{{ asset('logo_bi.png') }}">
+    <meta property="og:site_name" content="SIM GenBI USN Kolaka">
+    <meta property="og:locale" content="id_ID">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="@yield('twitter_title', 'SIM GenBI - USN Kolaka')">
+    <meta name="twitter:description" content="@yield('twitter_description', 'Platform administrasi resmi GenBI Sultra Komisariat USN Kolaka.')">
+    <meta name="twitter:image" content="{{ asset('logo_bi.png') }}">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{{ asset('logo_bi.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('logo_bi.png') }}">
+
+    <!-- Schema.org JSON-LD Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "Organization",
+                "@id": "{{ url('/') }}/#organization",
+                "name": "GenBI Sultra Komisariat Universitas Sembilanbelas November Kolaka",
+                "alternateName": "GenBI USN Kolaka",
+                "url": "{{ url('/') }}",
+                "logo": "{{ asset('logo_bi.png') }}",
+                "contactPoint": {
+                    "@type": "ContactPoint",
+                    "telephone": "+62-822-2857-6830",
+                    "contactType": "administrator",
+                    "email": "genbisultra@gmail.com"
+                }
+            },
+            {
+                "@type": "WebSite",
+                "@id": "{{ url('/') }}/#website",
+                "url": "{{ url('/') }}",
+                "name": "SIM GenBI USN Kolaka",
+                "description": "Sistem Informasi Manajemen Generasi Baru Indonesia Sultra Komisariat USN Kolaka",
+                "publisher": {
+                    "@id": "{{ url('/') }}/#organization"
+                },
+                "inLanguage": "id-ID"
+            }
+        ]
+    }
+    </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -73,20 +135,39 @@
         .main-content-scroll::-webkit-scrollbar-thumb:hover {
             background: #94a3b8;
         }
+
+        /* Scrollbar khusus Sidebar (latar gelap) */
+        .hide-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .hide-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .hide-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+        }
+        .hide-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.4);
+        }
+        .hide-scrollbar {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+        }
     </style>
 </head>
 
 <body class="bg-bg-main font-sans flex min-h-screen text-gray-800 overflow-hidden">
 
     <aside id="mainSidebar"
-        class="w-64 min-w-[16rem] bg-gradient-to-b from-blue-700 via-blue-800 to-blue-900 flex flex-col justify-between z-10 shadow-[4px_0_24px_rgba(0,0,0,0.08)] sidebar-transition flex-shrink-0 border-r border-white/5 relative overflow-hidden">
+        class="w-64 min-w-[16rem] h-screen bg-gradient-to-b from-blue-700 via-blue-800 to-blue-900 flex flex-col justify-between z-10 shadow-[4px_0_24px_rgba(0,0,0,0.08)] sidebar-transition flex-shrink-0 border-r border-white/5 relative overflow-hidden">
 
         <!-- Ornamen Dekorasi Halus di Latar Belakang Sidebar -->
         <div
             class="absolute top-0 left-0 w-full h-64 bg-white opacity-5 rounded-full blur-3xl -translate-y-1/2 -translate-x-1/2 pointer-events-none">
         </div>
 
-        <div class="overflow-y-auto overflow-x-hidden hide-scrollbar relative z-10 mt-2">
+        <div class="flex-1 overflow-y-auto overflow-x-hidden hide-scrollbar relative z-10 mt-2">
             <div class="p-8 text-2xl font-black flex items-center gap-3 text-white tracking-wide">
                 <img src="{{ asset('logo_kiri.png') }}" alt="Logo GenBI"
                     class="w-11 h-11 bg-white/95 rounded-full p-1.5 shadow-md object-contain flex-shrink-0 border border-white/20">
@@ -179,6 +260,32 @@
                     </a>
                 @endif
 
+                @if (auth()->user()->canAccessSurat() || auth()->user()->hasAksesSosialisasi())
+                    <div class="relative">
+                        <button onclick="document.getElementById('suratDropdown').classList.toggle('hidden'); document.getElementById('suratIcon').classList.toggle('rotate-180');"
+                            class="w-full flex justify-between items-center px-4 py-3.5 {{ request()->routeIs('surat.*') ? 'bg-white text-blue-700 rounded-2xl shadow-lg shadow-black/10 font-extrabold transition-all duration-300 transform scale-[1.02] border border-white/20' : 'text-blue-100/70 hover:bg-white/10 hover:text-white rounded-2xl transition-all duration-300 hover:translate-x-1.5 font-semibold border border-transparent hover:border-white/5' }}">
+                            <div class="flex items-center">
+                                <svg class="w-5 h-5 mr-4 flex-shrink-0 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                                </svg>
+                                Surat
+                            </div>
+                            <svg id="suratIcon" class="w-4 h-4 transition-transform duration-300 {{ request()->routeIs('surat.*') ? 'rotate-180' : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+                        <div id="suratDropdown" class="{{ request()->routeIs('surat.*') ? '' : 'hidden' }} flex flex-col mt-1 space-y-1 pl-12 pr-4">
+                            @if (auth()->user()->canAccessSurat())
+                                <a href="{{ route('surat.internal') }}" class="block px-4 py-2 text-sm rounded-xl {{ request()->routeIs('surat.internal') ? 'bg-white/20 text-white font-bold' : 'text-blue-100/70 hover:bg-white/10 hover:text-white' }}">Surat Internal</a>
+                                <a href="{{ route('surat.eksternal') }}" class="block px-4 py-2 text-sm rounded-xl {{ request()->routeIs('surat.eksternal') ? 'bg-white/20 text-white font-bold' : 'text-blue-100/70 hover:bg-white/10 hover:text-white' }}">Surat Eksternal</a>
+                            @endif
+                            @if (auth()->user()->hasAksesSosialisasi())
+                                <a href="{{ route('surat.sosialisasi') }}" class="block px-4 py-2 text-sm rounded-xl {{ request()->routeIs('surat.sosialisasi*') ? 'bg-white/20 text-white font-bold' : 'text-blue-100/70 hover:bg-white/10 hover:text-white' }}">Sosialisasi</a>
+                            @endif
+                        </div>
+                    </div>
+                @endif
+
                 @if (in_array(auth()->user()->role, ['admin', 'sekretaris', 'bendahara']))
                     <a href="{{ route('laporan') }}"
                         class="{{ request()->routeIs('laporan') ? $activeMenu : $inactiveMenu }}">
@@ -194,7 +301,7 @@
             </nav>
         </div>
 
-        <div class="p-4 mb-4 mt-auto relative z-10">
+        <div class="p-4 mb-4 mt-auto relative z-10 flex-shrink-0">
             <div class="h-px w-full bg-gradient-to-r from-transparent via-white/20 to-transparent mb-4"></div>
             <a href="{{ route('logout') }}"
                 class="flex items-center px-4 py-3 text-red-200 bg-red-500/10 border border-red-500/20 hover:bg-red-500 hover:text-white hover:shadow-lg hover:shadow-red-500/30 rounded-2xl transition-all duration-300 font-bold whitespace-nowrap hover:translate-x-1">

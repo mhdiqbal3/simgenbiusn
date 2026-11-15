@@ -323,4 +323,16 @@ class PoinController extends Controller
             'open_modal_batal_nim' => $poin->nim
         ]);
     }
+
+    // Fungsi untuk mereset seluruh poin keaktifan anggota
+    public function resetAll()
+    {
+        Poin::query()->update([
+            'total_poin' => '0',
+            'sp' => 'Aman',
+            'keterangan' => '-'
+        ]);
+
+        return redirect()->route('poin')->with('success', 'Semua poin keaktifan anggota berhasil di-reset!');
+    }
 }

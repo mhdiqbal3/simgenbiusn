@@ -25,6 +25,30 @@
         </div>
     </div>
 
+    @if (session('success'))
+        <div
+            class="mb-6 p-4 bg-emerald-50 border border-emerald-200 text-emerald-600 rounded-2xl text-sm font-bold flex items-center gap-3 shadow-sm animate-fade-in-down">
+            <div class="bg-emerald-500 text-white p-1 rounded-full">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+                </svg>
+            </div>
+            {{ session('success') }}
+        </div>
+    @endif
+
+    @if (session('error'))
+        <div
+            class="mb-6 p-4 bg-red-50 border border-red-200 text-red-600 rounded-2xl text-sm font-bold flex items-center gap-3 shadow-sm animate-fade-in-down">
+            <div class="bg-red-500 text-white p-1 rounded-full">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </div>
+            {{ session('error') }}
+        </div>
+    @endif
+
     <div
         class="bg-white rounded-3xl p-6 md:p-8 shadow-[0_12px_40px_rgba(0,0,0,0.03)] border border-gray-100/70 relative z-20">
 
@@ -144,7 +168,7 @@
                         <th class="py-4 px-5 font-black text-[11px] uppercase tracking-widest">Judul Dokumen Laporan</th>
                         <th class="py-4 px-5 font-black text-[11px] uppercase tracking-widest">Penanggung Jawab</th>
                         <th class="py-4 px-5 font-black text-[11px] uppercase tracking-widest w-40">Kategori Arsip</th>
-                        <th class="py-4 px-5 font-black text-[11px] uppercase tracking-widest text-center w-60">Opsi Cetak
+                        <th class="py-4 px-5 font-black text-[11px] uppercase tracking-widest text-center w-72">Aksi
                         </th>
                     </tr>
                 </thead>
@@ -267,6 +291,17 @@
                                         </a>
                                     @endif
 
+                                    <button type="button"
+                                        onclick="openDeleteModal('{{ $laporan->jenis_laporan }}', '{{ $laporan->id ?? '' }}', '{{ $laporan->devisi ?? '' }}', '{{ addslashes($laporan->judul_laporan) }}')"
+                                        class="bg-white border-2 border-red-100 text-red-600 hover:bg-red-600 hover:text-white px-3.5 py-2 rounded-xl text-xs font-bold transition-all duration-300 flex items-center gap-1.5 shadow-sm hover:shadow-md hover:shadow-red-500/10 hover:-translate-y-0.5"
+                                        title="Hapus Laporan">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                                            </path>
+                                        </svg>
+                                        Hapus
+                                    </button>
                                 </div>
                             </td>
                         </tr>
@@ -300,6 +335,76 @@
             </table>
         </div>
     </div>
+
+    {{-- ===== MODAL HAPUS LAPORAN ===== --}}
+    <div id="modalHapus" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4 sm:p-6">
+        <div class="absolute inset-0 bg-gray-900/40 backdrop-blur-sm" onclick="closeDeleteModal()"></div>
+        <div class="relative w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden transform scale-95 opacity-0 transition-all duration-300"
+            id="modalHapusContent">
+            <div class="px-8 py-6 text-center">
+                <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+                        </path>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-extrabold text-gray-800 mb-2">Hapus Laporan?</h3>
+                <p class="text-sm text-gray-500">
+                    Apakah Anda yakin ingin menghapus <span id="modalJudulLaporan" class="font-bold text-gray-800"></span>?
+                    Tindakan ini tidak dapat dibatalkan dan data arsip akan dihapus secara permanen.
+                </p>
+            </div>
+            <div class="px-8 py-5 bg-gray-50 flex gap-3 justify-end border-t border-gray-100">
+                <button type="button" onclick="closeDeleteModal()"
+                    class="px-5 py-2.5 text-sm font-bold text-gray-600 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-all">
+                    Batal
+                </button>
+                <form action="{{ route('laporan.destroy') }}" method="POST" class="inline-block">
+                    @csrf
+                    @method('DELETE')
+                    <input type="hidden" name="jenis" id="modalInputJenis">
+                    <input type="hidden" name="id" id="modalInputId">
+                    <input type="hidden" name="devisi" id="modalInputDevisi">
+                    <input type="hidden" name="bulan" value="{{ request('bulan') }}">
+                    <input type="hidden" name="tahun" value="{{ request('tahun') }}">
+                    <button type="submit"
+                        class="px-5 py-2.5 text-sm font-bold text-white bg-red-600 rounded-xl hover:bg-red-700 transition-all shadow-lg shadow-red-500/20">
+                        Ya, Hapus
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openDeleteModal(jenis, id, devisi, judul) {
+            document.getElementById('modalInputJenis').value = jenis;
+            document.getElementById('modalInputId').value = id;
+            document.getElementById('modalInputDevisi').value = devisi;
+            document.getElementById('modalJudulLaporan').innerText = judul;
+
+            const modal = document.getElementById('modalHapus');
+            const modalContent = document.getElementById('modalHapusContent');
+
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modalContent.classList.remove('scale-95', 'opacity-0');
+                modalContent.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+
+        function closeDeleteModal() {
+            const modal = document.getElementById('modalHapus');
+            const modalContent = document.getElementById('modalHapusContent');
+
+            modalContent.classList.remove('scale-100', 'opacity-100');
+            modalContent.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+    </script>
 
     <style>
         @keyframes fadeInDown {

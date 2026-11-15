@@ -6,6 +6,7 @@ use App\Models\Kegiatan;
 use App\Models\Absensi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 class KegiatanController extends Controller
 {
@@ -128,5 +129,27 @@ class KegiatanController extends Controller
         $kegiatan->delete();
 
         return redirect()->route('kegiatan')->with('success', "Kegiatan dihapus. ($jumlahTerhapus data absensi ikut dibersihkan)");
+    }
+
+    // Fungsi untuk mereset (menghapus semua) data kegiatan beserta data terkait
+    public function resetAll()
+    {
+        // 1. Hitung sebelum hapus untuk laporan
+        $jumlahAnggaran = \App\Models\Anggaran::count();
+        $jumlahAbsensi  = \App\Models\Absensi::count();
+        $jumlahKegiatan = \App\Models\Kegiatan::count();
+
+        // 2. Hapus semua data terkait dalam transaksi
+        // Nonaktifkan foreign key check sementara agar TRUNCATE tidak error
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        \App\Models\Anggaran::truncate();
+        \App\Models\Absensi::truncate();
+        \App\Models\Kegiatan::truncate();
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+
+        return redirect()->route('kegiatan')->with(
+            'success',
+            "Reset berhasil! $jumlahKegiatan kegiatan, $jumlahAbsensi absensi, dan $jumlahAnggaran anggaran telah dihapus."
+        );
     }
 }

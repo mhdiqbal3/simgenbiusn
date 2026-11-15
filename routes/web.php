@@ -13,9 +13,13 @@ use App\Http\Controllers\PoinController;
 use App\Http\Controllers\AnggaranController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SuratController;
 
-// 1. Rute untuk meng-install tabel otomatis
+// 1. Rute untuk meng-install tabel otomatis (Diproteksi: Hanya Admin atau Mode Lokal)
 Route::get('/setup-notif', function () {
+    if (!app()->environment('local') && (!auth()->check() || auth()->user()->role !== 'admin')) {
+        abort(403, 'Akses ditolak: Hanya admin yang dapat menjalankan setup ini.');
+    }
     if (!Schema::hasTable('notifikasis')) {
         Schema::create('notifikasis', function ($table) {
             $table->id();
@@ -43,13 +47,26 @@ Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
 Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
 
 // ==========================================
-// 1. HALAMAN LOGIN (Tidak Perlu Satpam)
+// 1. HALAMAN LOGIN & PEMULIHAN (Dilengkapi Rate Limiting untuk Mencegah Brute Force)
 // ==========================================
 Route::get('/', [AuthController::class, 'index'])->name('login');
-Route::post('/login', [AuthController::class, 'login'])->name('login.proses');
+Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:6,1')->name('login.proses');
 Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::get('/lupa-password', [AuthController::class, 'showForgotForm'])->name('password.forgot');
-Route::post('/lupa-password', [AuthController::class, 'processForgot'])->name('password.reset');
+Route::post('/lupa-password', [AuthController::class, 'processForgot'])->middleware('throttle:5,1')->name('password.reset');
+
+// Dynamic Sitemap XML
+Route::get('/sitemap.xml', function () {
+    $baseUrl = url('/');
+    $lastMod = date('Y-m-d');
+    $content = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
+    $content .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
+    $content .= "  <url>\n    <loc>{$baseUrl}</loc>\n    <lastmod>{$lastMod}</lastmod>\n    <changefreq>daily</changefreq>\n    <priority>1.0</priority>\n  </url>\n";
+    $content .= "  <url>\n    <loc>{$baseUrl}/lupa-password</loc>\n    <lastmod>{$lastMod}</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>0.5</priority>\n  </url>\n";
+    $content .= '</urlset>';
+
+    return response($content, 200)->header('Content-Type', 'application/xml');
+});
 
 // ==========================================
 // 2. HALAMAN DALAM (Wajib Login / Satpam 'auth')
@@ -76,6 +93,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/poin/update', [PoinController::class, 'updatePoin'])->middleware('role:admin,sekretaris')->name('poin.update');
     Route::post('/poin/edit-keterangan', [App\Http\Controllers\PoinController::class, 'editKeterangan'])->name('poin.edit_keterangan');
     Route::post('/poin/{id}/batal', [PoinController::class, 'batalPoin'])->name('poin.batal');
+    Route::match(['post', 'delete'], '/poin/reset-all', [PoinController::class, 'resetAll'])->middleware('role:admin,sekretaris')->name('poin.reset');
 
     // ==========================================
     // KELOMPOK A: KHUSUS ADMIN & SEKRETARIS
@@ -105,6 +123,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/kegiatan/store', [KegiatanController::class, 'store'])->name('kegiatan.store');
         Route::put('/kegiatan/update/{id}', [KegiatanController::class, 'update'])->name('kegiatan.update');
         Route::delete('/kegiatan/hapus/{id}', [KegiatanController::class, 'destroy'])->name('kegiatan.destroy');
+        Route::delete('/kegiatan/reset-all', [KegiatanController::class, 'resetAll'])->name('kegiatan.reset');
 
         // Laporan Umum
         Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan');
@@ -112,6 +131,56 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/laporan/preview/{devisi}', [LaporanController::class, 'preview'])->name('laporan.preview');
         Route::get('/laporan/absensi/{id}', [LaporanController::class, 'cetakAbsensi'])->name('laporan.absensi');
         Route::get('/laporan/poin', [LaporanController::class, 'cetakPoin'])->name('laporan.poin');
+        Route::delete('/laporan/hapus', [LaporanController::class, 'destroy'])->name('laporan.destroy');
+    });
+
+    // ==========================================
+    // KELOMPOK B2: KHUSUS ADMIN & SEKRETARIS (SURAT INTERNAL, EKSTERNAL & KELOLA SOSIALISASI)
+    // ==========================================
+    Route::middleware(['role:admin,sekretaris'])->group(function () {
+
+        // Surat Internal
+        Route::get('/surat-internal', [SuratController::class, 'internal'])->name('surat.internal');
+        Route::post('/surat-internal/store', [SuratController::class, 'storeInternal'])->name('surat.internal.store');
+        Route::put('/surat-internal/update/{id}', [SuratController::class, 'updateInternal'])->name('surat.internal.update');
+        Route::get('/surat-internal/download/{id}', [SuratController::class, 'downloadInternal'])->name('surat.internal.download');
+        Route::delete('/surat-internal/hapus/{id}', [SuratController::class, 'destroyInternal'])->name('surat.internal.destroy');
+        Route::get('/surat-internal/template/{jenis}', [SuratController::class, 'downloadTemplate'])->name('surat.template.download');
+
+        // Surat Eksternal
+        Route::get('/surat-eksternal', [SuratController::class, 'eksternal'])->name('surat.eksternal');
+        Route::post('/surat-eksternal/store', [SuratController::class, 'storeEksternal'])->name('surat.eksternal.store');
+        Route::get('/surat-eksternal/download/{id}', [SuratController::class, 'downloadEksternal'])->name('surat.eksternal.download');
+        Route::get('/surat-eksternal/amplop/{id}', [SuratController::class, 'downloadAmplopEksternal'])->name('surat.eksternal.amplop.download');
+        Route::post('/surat-eksternal/amplop/download', [SuratController::class, 'downloadCustomAmplopEksternal'])->name('surat.eksternal.amplop.custom_download');
+        Route::get('/surat-eksternal/daftar-hadir/{id}', [SuratController::class, 'downloadDaftarHadirEksternal'])->name('surat.eksternal.daftar_hadir.download');
+        Route::post('/surat-eksternal/daftar-hadir/download', [SuratController::class, 'downloadCustomDaftarHadirEksternal'])->name('surat.eksternal.daftar_hadir.custom_download');
+        Route::put('/surat-eksternal/update/{id}', [SuratController::class, 'updateEksternal'])->name('surat.eksternal.update');
+        Route::delete('/surat-eksternal/hapus/{id}', [SuratController::class, 'destroyEksternal'])->name('surat.eksternal.destroy');
+        Route::get('/surat-eksternal/template/{jenis}', [SuratController::class, 'downloadTemplateEksternal'])->name('surat.eksternal.template.download');
+
+        // Kelola Sosialisasi (Tambah, Update, Hapus Surat Sosialisasi)
+        Route::post('/sosialisasi/store', [SuratController::class, 'storeSosialisasi'])->name('surat.sosialisasi.store');
+        Route::put('/sosialisasi/update/{id}', [SuratController::class, 'updateSosialisasi'])->name('surat.sosialisasi.update');
+        Route::delete('/sosialisasi/hapus/{id}', [SuratController::class, 'destroySosialisasi'])->name('surat.sosialisasi.destroy');
+    });
+
+    // ==========================================
+    // KELOMPOK B3: AKSES SOSIALISASI (ADMIN, SEKRETARIS & ANGGOTA PENUGASAN SOSIALISASI)
+    // ==========================================
+    Route::middleware(['akses_sosialisasi'])->group(function () {
+        Route::get('/sosialisasi', [SuratController::class, 'sosialisasi'])->name('surat.sosialisasi');
+        Route::get('/unduh-sosialisasi', function() { return redirect()->route('surat.sosialisasi'); });
+        Route::get('/sosialisasi/download/{id}', [SuratController::class, 'downloadSosialisasi'])->name('surat.sosialisasi.download');
+        Route::get('/sosialisasi/template', [SuratController::class, 'downloadTemplateSosialisasi'])->name('surat.sosialisasi.template.download');
+        Route::get('/sosialisasi/template/{jenis}', [SuratController::class, 'downloadTemplateEksternal'])->name('surat.sosialisasi.template.jenis');
+        Route::get('/sosialisasi/amplop/{id}', [SuratController::class, 'downloadAmplopSosialisasi'])->name('surat.sosialisasi.amplop.download');
+        Route::post('/sosialisasi/amplop/download', [SuratController::class, 'downloadCustomAmplopEksternal'])->name('surat.sosialisasi.amplop.custom_download');
+        Route::post('/sosialisasi/daftar-hadir/download', [SuratController::class, 'downloadCustomDaftarHadirSosialisasi'])->name('surat.sosialisasi.daftar_hadir.custom_download');
+        Route::get('/sosialisasi/sertifikat/{id}', [SuratController::class, 'sertifikatSosialisasi'])->name('surat.sosialisasi.sertifikat');
+        Route::post('/sosialisasi/sertifikat/custom', [SuratController::class, 'customSertifikatSosialisasi'])->name('surat.sosialisasi.sertifikat.custom');
+        Route::post('/sosialisasi/sertifikat/word', [SuratController::class, 'downloadWordSertifikatSosialisasi'])->name('surat.sosialisasi.sertifikat.word');
+        Route::get('/sosialisasi/template/sertifikat', [SuratController::class, 'downloadTemplateSertifikatSosialisasi'])->name('surat.sosialisasi.template.sertifikat');
     });
 
     // ==========================================

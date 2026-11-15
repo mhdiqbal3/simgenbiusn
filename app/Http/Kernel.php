@@ -36,6 +36,7 @@ class Kernel extends HttpKernel
             \Illuminate\View\Middleware\ShareErrorsFromSession::class,
             \App\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
+            \App\Http\Middleware\SecurityHeadersMiddleware::class,
         ],
 
         'api' => [
@@ -66,5 +67,7 @@ class Kernel extends HttpKernel
 
         // Ini Satpam Role buatan kita
         'role' => \App\Http\Middleware\RoleMiddleware::class,
+        'akses_sosialisasi' => \App\Http\Middleware\AksesSosialisasiMiddleware::class,
+        'security.headers' => \App\Http\Middleware\SecurityHeadersMiddleware::class,
     ];
 }

@@ -1,2 +1,25 @@
 User-agent: *
-Disallow:
+Allow: /
+Allow: /login
+Allow: /lupa-password
+Allow: /verifikasi-dokumen
+Allow: /logo_bi.png
+Allow: /assets/
+Allow: /dokumentasi/
+
+# Proteksi Area Administrasi Internal dan Sesi Pengguna
+Disallow: /dashboard
+Disallow: /users
+Disallow: /kegiatan
+Disallow: /absensi
+Disallow: /poin
+Disallow: /rancangan-anggaran
+Disallow: /laporan
+Disallow: /surat-internal
+Disallow: /surat-eksternal
+Disallow: /sosialisasi
+Disallow: /profile
+Disallow: /setup-notif
+
+Sitemap: https://genbi-usn.org/sitemap.xml
+Sitemap: /sitemap.xml

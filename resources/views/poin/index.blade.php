@@ -1,4 +1,4 @@
-@extends('layout.app')
+ @extends('layout.app')
 
 @section('content')
 
@@ -225,19 +225,33 @@
             <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
                 <h2 class="text-lg font-extrabold text-gray-800 w-full md:w-auto">Daftar Rekapitulasi Poin GenBI</h2>
 
-                <form action="{{ url()->current() }}" method="GET" class="relative w-full md:w-64" id="searchForm">
-                    @if (request('per_page'))
-                        <input type="hidden" name="per_page" value="{{ request('per_page') }}">
+                <div class="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
+                    <form action="{{ url()->current() }}" method="GET" class="relative w-full sm:w-64" id="searchForm">
+                        @if (request('per_page'))
+                            <input type="hidden" name="per_page" value="{{ request('per_page') }}">
+                        @endif
+                        <input type="text" name="search" id="searchInput" value="{{ request('search') }}"
+                            placeholder="Cari NIM / Nama..." oninput="handleSearch(this)"
+                            class="w-full border-2 border-gray-200 rounded-xl px-4 py-2 pl-10 focus:outline-none focus:border-primary-blue focus:ring-2 focus:ring-primary-blue/20 text-sm bg-gray-50 focus:bg-white transition-all font-medium">
+                        <svg class="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" fill="none"
+                            stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </form>
+
+                    @if (in_array(auth()->user()->role, ['admin', 'sekretaris']))
+                        <button type="button" onclick="bukaModalResetPoin()"
+                            class="w-full sm:w-auto bg-gradient-to-r from-red-500 to-rose-600 hover:from-rose-600 hover:to-red-700 text-white px-4 py-2 rounded-xl text-sm font-bold transition-all shadow-[0_4px_12px_rgb(239,68,68,0.25)] flex items-center justify-center gap-2 hover:-translate-y-0.5 active:translate-y-0 flex-shrink-0 cursor-pointer">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
+                                </path>
+                            </svg>
+                            <span>Reset Semua Poin</span>
+                        </button>
                     @endif
-                    <input type="text" name="search" id="searchInput" value="{{ request('search') }}"
-                        placeholder="Cari NIM / Nama..." oninput="handleSearch(this)"
-                        class="w-full border-2 border-gray-200 rounded-xl px-4 py-2 pl-10 focus:outline-none focus:border-primary-blue focus:ring-2 focus:ring-primary-blue/20 text-sm bg-gray-50 focus:bg-white transition-all font-medium">
-                    <svg class="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" fill="none"
-                        stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                    </svg>
-                </form>
+                </div>
             </div>
 
             <div class="overflow-x-auto border border-gray-100 rounded-2xl mb-4 shadow-sm">
@@ -610,6 +624,93 @@
                     </form>
                 </div>
             </div>
+
+            <!-- ===== MODAL KONFIRMASI RESET SEMUA POIN ===== -->
+            <div id="modalResetPoin"
+                class="fixed inset-0 z-[60] hidden bg-gray-900/70 backdrop-blur-sm items-center justify-center p-4 transition-all"
+                onclick="if(event.target===this) tutupModalResetPoin()">
+                <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full animate-modal overflow-hidden">
+                    <!-- Header Modal -->
+                    <div class="bg-gradient-to-br from-red-50 to-rose-100 p-6 flex items-start gap-4 border-b border-red-100">
+                        <div class="bg-red-100 border-4 border-red-200 p-3 rounded-2xl flex-shrink-0">
+                            <svg class="w-7 h-7 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+                                </path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-extrabold text-gray-800">Reset Semua Poin?</h3>
+                            <p class="text-red-600 text-xs font-semibold mt-1">Tindakan ini tidak dapat dibatalkan!</p>
+                        </div>
+                        <button type="button" onclick="tutupModalResetPoin()"
+                            class="ml-auto text-gray-400 hover:text-red-500 hover:bg-red-100 p-2 rounded-xl transition flex-shrink-0">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                                </path>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- Body Modal -->
+                    <div class="p-6">
+                        <p class="text-gray-600 text-sm leading-relaxed mb-4">
+                            Anda akan mereset <span class="font-extrabold text-gray-800">seluruh poin keaktifan anggota</span>. Tindakan ini akan:
+                        </p>
+                        <ul class="space-y-2.5 mb-6">
+                            <li class="flex items-center gap-2.5 text-xs text-gray-700">
+                                <span class="w-5 h-5 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
+                                    <svg class="w-3 h-3 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                                    </svg>
+                                </span>
+                                <span>Mereset <strong>Poin Tambahan</strong> semua anggota ke <strong>0</strong></span>
+                            </li>
+                            <li class="flex items-center gap-2.5 text-xs text-gray-700">
+                                <span class="w-5 h-5 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
+                                    <svg class="w-3 h-3 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                                    </svg>
+                                </span>
+                                <span>Menghapus seluruh riwayat <strong>Keterangan Poin</strong></span>
+                            </li>
+                            <li class="flex items-center gap-2.5 text-xs text-gray-700">
+                                <span class="w-5 h-5 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
+                                    <svg class="w-3 h-3 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                                    </svg>
+                                </span>
+                                <span>Mengembalikan Status SP ke <strong>Aman</strong></span>
+                            </li>
+                        </ul>
+
+                        <!-- Konfirmasi Ketik -->
+                        <div class="bg-red-50 border border-red-200 rounded-2xl p-4 mb-5">
+                            <p class="text-xs font-bold text-red-700 mb-2 uppercase tracking-wider">Ketik <span class="font-black text-red-800">RESET</span> untuk konfirmasi:</p>
+                            <input type="text" id="resetPoinConfirmInput" placeholder="Ketik RESET di sini..."
+                                oninput="checkResetPoinConfirm(this)" autocomplete="off"
+                                class="w-full border border-red-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-red-400 focus:ring-2 focus:ring-red-200 bg-white font-bold text-gray-800 placeholder-gray-400 transition-all">
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="flex gap-3">
+                            <button type="button" onclick="tutupModalResetPoin()"
+                                class="flex-1 px-5 py-3 text-gray-600 font-bold bg-gray-100 hover:bg-gray-200 rounded-xl text-sm transition">Batal</button>
+
+                            <form action="{{ route('poin.reset') }}" method="POST" class="flex-1">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" id="btnResetPoinConfirm" disabled
+                                    class="w-full px-5 py-3 rounded-xl text-sm font-bold transition-all duration-300
+                                           bg-gray-200 text-gray-400 cursor-not-allowed">
+                                    Reset Semua
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- ===== END MODAL RESET POIN ===== -->
         @endif
 
         <script>
@@ -722,6 +823,50 @@
                 modal.classList.add('hidden');
                 modal.classList.remove('flex');
                 document.body.style.overflow = 'auto';
+            }
+
+            // --- LOGIKA MODAL RESET SEMUA POIN ---
+            function bukaModalResetPoin() {
+                const modal = document.getElementById('modalResetPoin');
+                if (modal) {
+                    document.body.style.overflow = 'hidden';
+                    modal.classList.remove('hidden');
+                    modal.classList.add('flex');
+                    const inp = document.getElementById('resetPoinConfirmInput');
+                    if (inp) {
+                        inp.value = '';
+                        checkResetPoinConfirm(inp);
+                        setTimeout(() => inp.focus(), 150);
+                    }
+                }
+            }
+
+            function tutupModalResetPoin() {
+                const modal = document.getElementById('modalResetPoin');
+                if (modal) {
+                    document.body.style.overflow = 'auto';
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                    const inp = document.getElementById('resetPoinConfirmInput');
+                    if (inp) {
+                        inp.value = '';
+                        checkResetPoinConfirm(inp);
+                    }
+                }
+            }
+
+            function checkResetPoinConfirm(input) {
+                const btn = document.getElementById('btnResetPoinConfirm');
+                if (!btn) return;
+                if (input.value.trim().toUpperCase() === 'RESET') {
+                    btn.disabled = false;
+                    btn.classList.remove('bg-gray-200', 'text-gray-400', 'cursor-not-allowed');
+                    btn.classList.add('bg-gradient-to-r', 'from-red-500', 'to-rose-600', 'text-white', 'shadow-md', 'shadow-red-500/30', 'hover:-translate-y-0.5', 'cursor-pointer');
+                } else {
+                    btn.disabled = true;
+                    btn.classList.add('bg-gray-200', 'text-gray-400', 'cursor-not-allowed');
+                    btn.classList.remove('bg-gradient-to-r', 'from-red-500', 'to-rose-600', 'text-white', 'shadow-md', 'shadow-red-500/30', 'hover:-translate-y-0.5', 'cursor-pointer');
+                }
             }
 
             function setNilaiPoin() {

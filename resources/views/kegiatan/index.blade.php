@@ -49,13 +49,27 @@
                     <span class="text-sm font-semibold text-gray-500">entri</span>
                 </form>
 
-                <button onclick="toggleModal('modalTambahKegiatan')"
-                    class="w-full sm:w-auto bg-gradient-to-r from-primary-blue to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 py-2.5 rounded-xl text-sm font-bold transition-all shadow-[0_4px_12px_rgb(29,78,216,0.25)] flex items-center justify-center gap-2 hover:-translate-y-0.5 active:translate-y-0">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path>
-                    </svg>
-                    <span>Tambah Kegiatan</span>
-                </button>
+                <div class="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+                    <!-- Tombol Reset Kegiatan -->
+                    <button onclick="toggleModal('modalResetKegiatan')"
+                        class="w-full sm:w-auto bg-gradient-to-r from-red-500 to-rose-600 hover:from-rose-600 hover:to-red-700 text-white px-6 py-2.5 rounded-xl text-sm font-bold transition-all shadow-[0_4px_12px_rgb(239,68,68,0.25)] flex items-center justify-center gap-2 hover:-translate-y-0.5 active:translate-y-0">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
+                            </path>
+                        </svg>
+                        <span>Reset Kegiatan</span>
+                    </button>
+
+                    <!-- Tombol Tambah Kegiatan -->
+                    <button onclick="toggleModal('modalTambahKegiatan')"
+                        class="w-full sm:w-auto bg-gradient-to-r from-primary-blue to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 py-2.5 rounded-xl text-sm font-bold transition-all shadow-[0_4px_12px_rgb(29,78,216,0.25)] flex items-center justify-center gap-2 hover:-translate-y-0.5 active:translate-y-0">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path>
+                        </svg>
+                        <span>Tambah Kegiatan</span>
+                    </button>
+                </div>
             </div>
 
             <!-- Filter Bar -->
@@ -452,6 +466,97 @@
         </div>
     @endforeach
 
+    <!-- ===== MODAL KONFIRMASI RESET KEGIATAN ===== -->
+    <div id="modalResetKegiatan"
+        class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm items-center justify-center p-4"
+        onclick="if(event.target===this) toggleModal('modalResetKegiatan')">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full animate-modal overflow-hidden">
+            <!-- Header -->
+            <div class="bg-gradient-to-br from-red-50 to-rose-100 p-6 flex items-start gap-4">
+                <div class="bg-red-100 border-4 border-red-200 p-3 rounded-2xl flex-shrink-0">
+                    <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+                        </path>
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="text-xl font-extrabold text-gray-800">Reset Semua Kegiatan?</h3>
+                    <p class="text-red-600 text-sm font-semibold mt-1">Tindakan ini tidak dapat dibatalkan!</p>
+                </div>
+                <button onclick="toggleModal('modalResetKegiatan')"
+                    class="ml-auto text-gray-400 hover:text-red-500 hover:bg-red-100 p-2 rounded-xl transition flex-shrink-0">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                        </path>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Body -->
+            <div class="p-6">
+                <p class="text-gray-600 text-sm leading-relaxed mb-4">
+                    Anda akan menghapus <span class="font-extrabold text-gray-800">semua data kegiatan</span> beserta
+                    data terkait berikut secara permanen:
+                </p>
+                <ul class="space-y-2 mb-6">
+                    <li class="flex items-center gap-2.5 text-sm text-gray-700">
+                        <span class="w-5 h-5 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
+                            <svg class="w-3 h-3 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                            </svg>
+                        </span>
+                        <span>Seluruh data <strong>Kegiatan</strong></span>
+                    </li>
+                    <li class="flex items-center gap-2.5 text-sm text-gray-700">
+                        <span class="w-5 h-5 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
+                            <svg class="w-3 h-3 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                            </svg>
+                        </span>
+                        <span>Seluruh data <strong>Absensi</strong> yang terkait</span>
+                    </li>
+                    <li class="flex items-center gap-2.5 text-sm text-gray-700">
+                        <span class="w-5 h-5 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
+                            <svg class="w-3 h-3 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                            </svg>
+                        </span>
+                        <span>Seluruh data <strong>Rancangan Anggaran</strong> yang terkait</span>
+                    </li>
+                </ul>
+
+                <!-- Konfirmasi Ketik -->
+                <div class="bg-red-50 border border-red-200 rounded-2xl p-4 mb-5">
+                    <p class="text-xs font-bold text-red-700 mb-2 uppercase tracking-wider">Ketik <span class="font-black">RESET</span> untuk konfirmasi:</p>
+                    <input type="text" id="resetConfirmInput" placeholder="Ketik RESET di sini..."
+                        oninput="checkResetConfirm(this)"
+                        class="w-full border border-red-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-red-400 focus:ring-2 focus:ring-red-200 bg-white font-bold text-gray-800 placeholder-gray-400 transition-all">
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex gap-3">
+                    <button type="button" onclick="toggleModal('modalResetKegiatan')"
+                        class="flex-1 px-5 py-3 text-gray-600 font-bold bg-gray-100 hover:bg-gray-200 rounded-xl text-sm transition">Batal</button>
+
+                    <form action="{{ route('kegiatan.reset') }}" method="POST" class="flex-1">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" id="btnResetConfirm" disabled
+                            class="w-full px-5 py-3 rounded-xl text-sm font-bold transition-all duration-300
+                                   bg-gray-200 text-gray-400 cursor-not-allowed
+                                   disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed
+                                   enabled:bg-gradient-to-r enabled:from-red-500 enabled:to-rose-600 enabled:text-white enabled:shadow-md enabled:shadow-red-500/30 enabled:hover:-translate-y-0.5"
+                            id="btnResetConfirm">
+                            Hapus Semua
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ===== END MODAL RESET ===== -->
+
     <style>
         @keyframes modalPop {
             0% {
@@ -507,6 +612,11 @@
                     document.body.style.overflow = 'auto';
                     m.classList.add('hidden');
                     m.classList.remove('flex');
+                    // Reset konfirmasi input jika modal Reset Kegiatan ditutup
+                    if (id === 'modalResetKegiatan') {
+                        const inp = document.getElementById('resetConfirmInput');
+                        if (inp) { inp.value = ''; checkResetConfirm(inp); }
+                    }
                 }
             }
         }
@@ -530,5 +640,17 @@
                 searchInput.value = val;
             }
         });
+        function checkResetConfirm(input) {
+            const btn = document.getElementById('btnResetConfirm');
+            if (input.value.trim().toUpperCase() === 'RESET') {
+                btn.disabled = false;
+                btn.classList.remove('bg-gray-200', 'text-gray-400', 'cursor-not-allowed');
+                btn.classList.add('bg-gradient-to-r', 'from-red-500', 'to-rose-600', 'text-white', 'shadow-md', 'shadow-red-500/30', 'hover:-translate-y-0.5');
+            } else {
+                btn.disabled = true;
+                btn.classList.add('bg-gray-200', 'text-gray-400', 'cursor-not-allowed');
+                btn.classList.remove('bg-gradient-to-r', 'from-red-500', 'to-rose-600', 'text-white', 'shadow-md', 'shadow-red-500/30', 'hover:-translate-y-0.5');
+            }
+        }
     </script>
 @endsection
